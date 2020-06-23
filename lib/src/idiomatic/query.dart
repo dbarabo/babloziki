@@ -39,7 +39,7 @@ class QueryDefault<T> implements Query<T> {
   ClassMirror _typeInstance;
 
   TransformOperation _transform;
-  List<T> mainList;
+  List<T> _mainList;
 
   StreamController _listenerController;
 
@@ -73,6 +73,15 @@ class QueryDefault<T> implements Query<T> {
     _listenerController ??= StreamController<OperationData>();
 
     return _listenerController.stream.listen(listener);
+  }
+
+  @override
+  Future<List<T>> get mainEntityList async {
+    if (_mainList != null) return _mainList;
+
+    mainQuery?.query?.isNotEmpty == true ? await select() : _resetMainList();
+
+    return _mainList;
   }
 
   @override
@@ -220,15 +229,6 @@ class QueryDefault<T> implements Query<T> {
   }
 
   @override
-  Future<List<T>> get mainEntityList async {
-    if (mainList != null) return mainList;
-
-    mainQuery?.query?.isNotEmpty == true ? await select() : _resetMainList();
-
-    return mainList;
-  }
-
-  @override
   Future<T> getEntityById(Object id) async {
     if (id == null) return null;
 
@@ -269,12 +269,12 @@ class QueryDefault<T> implements Query<T> {
   }
 
   List<T> _resetMainList() {
-    if (mainList == null) {
-      mainList = List<T>();
+    if (_mainList == null) {
+      _mainList = List<T>();
     } else {
-      mainList.clear();
+      _mainList.clear();
     }
-    return mainList;
+    return _mainList;
   }
 
   ColumnInfo _getFirstPkColumnInfo() {
