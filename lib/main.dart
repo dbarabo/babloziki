@@ -1,4 +1,3 @@
-import 'package:babloziki/src/babloziki/db/babloz_db.dart';
 import 'package:babloziki/src/babloziki/model/account_model.dart';
 import 'package:babloziki/src/babloziki/screen/account_view.dart';
 import 'package:flutter/material.dart';
@@ -9,22 +8,10 @@ import 'main.reflectable.dart';
 void main() async {
   initializeReflectable(); // flutter packages pub run build_runner build
 
-  WidgetsFlutterBinding.ensureInitialized();
-
-  BablozDb();
-
-  //await _initProvider();
-  final accountModel = AccountModelDb();
-  await accountModel.init();
-
-  runApp(Provider<AccountModel>(create: (_) => accountModel, child: AccountView()));
-}
-
-_initProvider() async {
-  final accountModel = AccountModelDb();
-  await accountModel.init();
-
-  Provider<AccountModel>(create: (_) => accountModel);
+  runApp(FutureProvider<AccountModel>(
+    create: (_) async => AccountModelDb.init(),
+    child: AccountView(),
+  ));
 }
 
 class MyApp extends StatelessWidget {

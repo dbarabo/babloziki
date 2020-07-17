@@ -8,17 +8,20 @@ abstract class AccountModel {
 }
 
 class AccountModelDb implements AccountModel {
-  int _countAccounts = 0;
+  static final AccountModel _instance = AccountModelDb._internal();
 
-  List<Account> _accounts;
+  AccountModelDb._internal();
 
-  init() async {
+  static List<Account> _accounts;
+
+  static Future<AccountModel> init() async {
     _accounts = await BablozDb().queryAccount.mainEntityList;
-    _countAccounts = _accounts.length;
+
+    return _instance;
   }
 
   @override
-  int get countAccounts => _countAccounts;
+  int get countAccounts => _accounts.length ?? 0;
 
   @override
   List<Account> get accounts => _accounts;
