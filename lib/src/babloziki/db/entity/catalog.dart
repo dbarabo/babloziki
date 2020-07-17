@@ -271,4 +271,25 @@ class Pay {
   @override
   String toString() =>
       "Pay id:$id created:$created amount:$amount account:${account?.name} category:${category?.name} accountTo:${accountTo?.name} person:${person?.name} project:${project?.name} description:$description";
+
+  bool isEqualNotNull(Pay other) {
+    if (other == null) return false;
+
+    return (nullOrEqual(other.id, id) &&
+        nullOrEqual(other.account, account) &&
+        nullOrEqual(other.created, created) &&
+        nullOrEqual(other.category, category) &&
+        nullOrEqual(other.amount, amount) &&
+        nullOrEqual(other.accountTo, accountTo) &&
+        nullOrEqual(other.person, person) &&
+        nullOrEqual(other.project, project) &&
+        nullOrEqual(other.description, description) &&
+        nullOrEqual(other.amountTo, amountTo));
+  }
+}
+
+bool nullOrEqual<T>(T item, T other) {
+  if (item == null) return true;
+
+  return item == other;
 }
