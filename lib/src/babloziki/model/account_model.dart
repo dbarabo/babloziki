@@ -1,12 +1,25 @@
 import 'package:babloziki/src/babloziki/db/babloz_db.dart';
 import 'package:babloziki/src/babloziki/db/entity/catalog.dart';
-import 'package:flutter/cupertino.dart';
 
 abstract class AccountModel {
-  Future<List<Account>> get accountList;
+  List<Account> get accounts;
+
+  int get countAccounts;
 }
 
-class AccountModelDb with ChangeNotifier implements AccountModel {
+class AccountModelDb implements AccountModel {
+  int _countAccounts = 0;
+
+  List<Account> _accounts;
+
+  init() async {
+    _accounts = await BablozDb().queryAccount.mainEntityList;
+    _countAccounts = _accounts.length;
+  }
+
   @override
-  Future<List<Account>> get accountList async => await BablozDb().queryAccount.mainEntityList;
+  int get countAccounts => _countAccounts;
+
+  @override
+  List<Account> get accounts => _accounts;
 }

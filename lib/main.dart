@@ -1,22 +1,30 @@
 import 'package:babloziki/src/babloziki/db/babloz_db.dart';
 import 'package:babloziki/src/babloziki/model/account_model.dart';
+import 'package:babloziki/src/babloziki/screen/account_view.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'main.reflectable.dart';
 
-void main() {
+void main() async {
   initializeReflectable(); // flutter packages pub run build_runner build
+
+  WidgetsFlutterBinding.ensureInitialized();
 
   BablozDb();
 
-  _initProvider();
+  //await _initProvider();
+  final accountModel = AccountModelDb();
+  await accountModel.init();
 
-  runApp(MyApp());
+  runApp(Provider<AccountModel>(create: (_) => accountModel, child: AccountView()));
 }
 
-_initProvider() {
-  Provider<AccountModel>(create: (context) => AccountModelDb());
+_initProvider() async {
+  final accountModel = AccountModelDb();
+  await accountModel.init();
+
+  Provider<AccountModel>(create: (_) => accountModel);
 }
 
 class MyApp extends StatelessWidget {

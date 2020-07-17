@@ -51,7 +51,9 @@ class DbDefault implements Db {
     String dbPath;
     try {
       dbPath = await dbFactory.getDatabasesPath();
+      print("sqflite dbPath=$dbPath");
     } catch (e) {
+      print("databaseFactory sqflite error $e");
       dbFactory = databaseFactoryFfi;
       dbPath = await dbFactory.getDatabasesPath();
     }

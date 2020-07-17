@@ -1,4 +1,5 @@
 import 'package:babloziki/src/idiomatic/annotation/annotations.dart';
+import 'package:intl/intl.dart';
 import 'package:quiver/core.dart';
 
 @Entity("CURRENCY")
@@ -12,6 +13,12 @@ class Currency {
   int sync;
 
   Currency([this.name, this.ext]);
+
+  NumberFormat get formatter => NumberFormat.currency(
+        locale: "ru_RU",
+        symbol: ext,
+        decimalDigits: 2,
+      );
 
   @override
   bool operator ==(Object other) =>
@@ -45,10 +52,12 @@ class Account {
   @readOnly
   double rest;
 
+  Account([this.name, this.currency, this.type]);
+
   AccountType get accountType => AccountType.byDbValue(type);
   set categoryType(AccountType accountType) => type = accountType.dbValue;
 
-  Account([this.name, this.currency, this.type]);
+  String get restFormat => rest == null || currency == null ? "0.00" : currency.formatter.format(rest);
 
   @override
   bool operator ==(Object other) =>
