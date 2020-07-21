@@ -195,7 +195,7 @@ Object _stringSqlConverter(Object sqlValue) => sqlValue?.toString();
 
 Object _intFromNumConverter(Object sqlValue) => sqlValue == null ? null : (sqlValue as num).toInt();
 
-Object _intFromStringConverter(Object sqlValue) => sqlValue == null ? null : int.parse(sqlValue);
+Object _intFromStringConverter(Object sqlValue) => sqlValue == null ? null : int.parse(sqlValue.toString());
 
 Object _intFromSqlConverter(Object sqlValue) {
   if (sqlValue == null) return null;
@@ -209,7 +209,8 @@ Object _intFromSqlConverter(Object sqlValue) {
 
 Object _doubleFromNumConverter(Object sqlValue) => sqlValue == null ? null : (sqlValue as num).toDouble();
 
-Object _doubleFromStringConverter(Object sqlValue) => sqlValue == null ? null : double.parse(sqlValue);
+Object _doubleFromStringConverter(Object sqlValue) =>
+    sqlValue == null ? null : double.parse(sqlValue.toString());
 
 Object _doubleFromSqlConverter(Object sqlValue) {
   if (sqlValue == null) return null;
@@ -230,7 +231,8 @@ Object _doubleFromDateTimeConverter(Object sqlValue) =>
 Object _dateTimeFromNumConverter(Object sqlValue) =>
     sqlValue == null ? null : DateTime.fromMillisecondsSinceEpoch((sqlValue as num).toInt());
 
-Object _dateTimeFromStringConverter(Object sqlValue) => sqlValue == null ? null : DateTime.parse(sqlValue);
+Object _dateTimeFromStringConverter(Object sqlValue) =>
+    sqlValue == null ? null : DateTime.parse(sqlValue.toString());
 
 Object _dateTimeFromSqlConverter(Object sqlValue) {
   if (sqlValue == null) return null;

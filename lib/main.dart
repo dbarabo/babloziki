@@ -1,17 +1,36 @@
 import 'package:babloziki/src/babloziki/model/account_model.dart';
+import 'package:babloziki/src/babloziki/model/pay_model.dart';
 import 'package:babloziki/src/babloziki/screen/account_view.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
+import 'package:provider/single_child_widget.dart';
 
 import 'main.reflectable.dart';
 
 void main() async {
   initializeReflectable(); // flutter packages pub run build_runner build
 
-  runApp(FutureProvider<AccountModel>(
-    create: (_) async => AccountModelDb.init(),
-    child: AccountView(),
-  ));
+  initializeDateFormatting();
+
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final providers = await _initProviders();
+
+  runApp(MultiProvider(providers: providers, child: AccountView()));
+}
+
+Future<List<SingleChildWidget>> _initProviders() async {
+  final accountProvider = await AccountModelDb.init();
+  final payProvider = await PayModelDb.init();
+
+  return [Provider<AccountModel>.value(value: accountProvider), Provider<PayModel>.value(value: payProvider)];
+
+//  return [
+//    FutureProvider<AccountModel>(
+//        initialData: AccountModelDb.instance(), create: (_) async => AccountModelDb.init()),
+//    FutureProvider<PayModel>(initialData: PayModelDb.instance(), create: (_) async => PayModelDb.init()),
+//  ];
 }
 
 class MyApp extends StatelessWidget {

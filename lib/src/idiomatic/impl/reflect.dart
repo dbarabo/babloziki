@@ -69,7 +69,7 @@ T copy<T>(T entityItem) {
 
   ClassMirror clazz = entity.reflectType(T) as ClassMirror;
 
-  final T instance = clazz.newInstance("", List());
+  final T instance = clazz.newInstance("", List<dynamic>()) as T;
 
   final InstanceMirror instanceCopy = entity.reflect(instance);
 
@@ -135,9 +135,9 @@ Map<String, ColumnInfo> initCalcColumnsByType(ClassMirror typeInstance, Map<Stri
   if (calcList?.isNotEmpty != true) return opers;
 
   for (final calcField in calcList) {
-    final columnName = _getColumnNameByVariable(calcField.value) ?? calcField.key;
+    final columnName = _getColumnNameByVariable(calcField.value as VariableMirror) ?? calcField.key;
 
-    final sqlValue = row == null ? null : (row[columnName.toUpperCase()] ?? row[columnName.toLowerCase()]);
+    final sqlValue = (row == null) ? null : (row[columnName.toUpperCase()] ?? row[columnName.toLowerCase()]);
 
     opers[columnName] = _createCalcColumnInfo(calcField, sqlValue);
   }

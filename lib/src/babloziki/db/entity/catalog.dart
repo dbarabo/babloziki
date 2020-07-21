@@ -70,7 +70,7 @@ class Account {
       other.closed == closed;
 
   @override
-  int get hashCode => hashObjects([id, name, description, type, isUseDebt, closed]);
+  int get hashCode => hashObjects(<dynamic>[id, name, description, type, isUseDebt, closed]);
 
   @override
   String toString() =>
@@ -108,6 +108,8 @@ class Category {
 
   int sync;
 
+  String image;
+
   CategoryType get categoryType => CategoryType.byDbValue(type);
   set categoryType(CategoryType categoryType) => type = categoryType.dbValue;
 
@@ -115,6 +117,8 @@ class Category {
   double turn;
 
   Category([this.name, this.parent, this.type]);
+
+  String get imageParent => (image != null) ? image : parent?.image;
 
   @override
   bool operator ==(Object other) =>
@@ -129,7 +133,7 @@ class Category {
 
   @override
   String toString() =>
-      "Category id:$id name:$name parent:${parent?.name} type:$type categoryType:$categoryType turn:$turn sync:$sync";
+      "Category id:$id name:$name image: $image parent:${parent?.name} type:$type categoryType:$categoryType turn:$turn sync:$sync";
 }
 
 class CategoryType {
@@ -264,9 +268,25 @@ class Pay {
       other.description == description &&
       other.amountTo == amountTo;
 
+  bool get isDateOnly => created != null && id == null && account == null;
+
+  String get amountFormat => account?.currency?.formatter?.format(amount) ?? "???";
+
+  String get createdFormat => created == null ? "" : _formatDate.format(created);
+
+  String get namePay => category?.id != null ? category.name : "Перевод $_accountToAmont";
+
+  String get _accountToAmont => accountTo != null ? "$_fromToAmount${accountTo.name}" : "";
+
+  String get _fromToAmount => (amount ?? 0.0) > 0.0 ? "с " : "на ";
+
+  String get imageCategory => category != null ? category.imageParent : "transfer";
+
+  static final _formatDate = DateFormat.yMd('ru_RU');
+
   @override
   int get hashCode => hashObjects(
-      [id, account, created, category, amount, accountTo, person, project, description, amountTo]);
+      <dynamic>[id, account, created, category, amount, accountTo, person, project, description, amountTo]);
 
   @override
   String toString() =>

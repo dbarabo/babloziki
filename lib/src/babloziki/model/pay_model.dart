@@ -14,13 +14,17 @@ class PayModelDb implements PayModel {
 
   PayModelDb._internal();
 
+  static List<Pay> _allPays;
+
+  static PayModel instance() => _instance;
+
   static Future<PayModel> init() async {
-    _allPays = await BablozDb().queryPay.mainEntityList;
+    final paysWithOutDateHeader = await BablozDb().queryPay.mainEntityList;
+
+    _allPays = _addDateHeaderPays(paysWithOutDateHeader);
 
     return _instance;
   }
-
-  static List<Pay> _allPays;
 
   Pay _filter;
 
@@ -42,9 +46,35 @@ class PayModelDb implements PayModel {
   @override
   List<Pay> get pays => _filterPays;
 
+  static List<Pay> _addDateHeaderPays(List<Pay> pays) {
+    final result = List<Pay>();
+
+    if ((pays?.length ?? 0) == 0) return result;
+
+    var priorDate = pays[0].created;
+
+    result.add(Pay(null, priorDate));
+
+    for (var pay in pays) {
+      if (!priorDate.isSameDate(pay.created)) {
+        priorDate = pay.created;
+        result.add(Pay(null, priorDate));
+      }
+      result.add(pay);
+    }
+
+    return result;
+  }
+
   List<Pay> _setFilter(Pay filter) {
     if (filter == null) return _allPays;
 
-    return _allPays.where((pay) => pay.isEqualNotNull(filter));
+    return _addDateHeaderPays(_allPays.where((pay) => pay.isEqualNotNull(filter)).toList());
+  }
+}
+
+extension DateOnlyCompare on DateTime {
+  bool isSameDate(DateTime other) {
+    return other != null && this.year == other.year && this.month == other.month && this.day == other.day;
   }
 }

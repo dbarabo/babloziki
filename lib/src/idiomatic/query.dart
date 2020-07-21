@@ -26,7 +26,7 @@ class _OperQuery {
     _sqlQueries[query] = _EntityMetaData(columnsInfo);
   }
 
-  put(String query, Map<String, ColumnInfo> columnsInfo) {
+  void put(String query, Map<String, ColumnInfo> columnsInfo) {
     _sqlQueries[query] = _EntityMetaData(columnsInfo);
   }
 }
@@ -41,7 +41,7 @@ class QueryDefault<T> implements Query<T> {
   TransformOperation _transform;
   List<T> _mainList;
 
-  StreamController _listenerController;
+  StreamController<OperationData> _listenerController;
 
   @override
   bool isCalculateOnSave = true;
@@ -168,7 +168,7 @@ class QueryDefault<T> implements Query<T> {
     final Object pkValue = pkColumn.getterToSql(instanceMirror);
 
     for (final column in calcColumns) {
-      Object calcValue = await _selectValue(column.calcExpression, [pkValue]);
+      Object calcValue = await _selectValue(column.calcExpression, <dynamic>[pkValue]);
       await column.setterFromSql(instanceMirror, calcValue);
     }
   }
@@ -257,8 +257,8 @@ class QueryDefault<T> implements Query<T> {
     return pkColumn.getterToSql(entity.reflect(entityObject));
   }
 
-  _sendListenerInfo(List<T> items, Operation operation) =>
-      _listenerController?.add(OperationData(items, operation));
+  void _sendListenerInfo(List<T> items, Operation operation) =>
+      _listenerController?.add(OperationData<T>(items, operation));
 
   List<T> _initResultList(bool isMain) {
     if (isMain) {
@@ -331,7 +331,7 @@ class QueryDefault<T> implements Query<T> {
   }
 
   Future<T> _fromSqlRow(Map<String, dynamic> row, Map<String, ColumnInfo> columnsInfo) async {
-    final T instance = _typeInstance.newInstance("", List());
+    final T instance = _typeInstance.newInstance("", List<dynamic>()) as T;
 
     final InstanceMirror instanceMirror = entity.reflect(instance);
 
@@ -408,7 +408,7 @@ class QueryDefault<T> implements Query<T> {
     await _setSelectOperation(query, copyColumns, dbOperType);
   }
 
-  _setSelectOperation(String query, Map<String, ColumnInfo> columns, DbOperation dbOperType) async {
+  void _setSelectOperation(String query, Map<String, ColumnInfo> columns, DbOperation dbOperType) async {
     final _OperQuery operQuery = _operQueries[dbOperType] ?? _OperQuery(query, columns);
 
     _operQueries[dbOperType] ??= operQuery;
@@ -482,7 +482,7 @@ class QueryDefault<T> implements Query<T> {
     _fillSavedOperationData(entityMetaData);
   }
 
-  _initCalcFields(Map<String, dynamic> row) {
+  void _initCalcFields(Map<String, dynamic> row) {
     final _OperQuery operQuery = _operQueries[DbOperation.select];
 
     if (operQuery?._sqlQueries != null && operQuery?._sqlQueries[_CALC_MARKER] != null) return;
@@ -492,7 +492,7 @@ class QueryDefault<T> implements Query<T> {
     _setSelectOperation(_CALC_MARKER, calcFields, DbOperation.select);
   }
 
-  _fillSavedOperationData(Map<String, ColumnInfo> entityMetaData) {
+  void _fillSavedOperationData(Map<String, ColumnInfo> entityMetaData) {
     _fillInsertData(entityMetaData);
 
     _fillUpdateData(entityMetaData);
@@ -500,7 +500,7 @@ class QueryDefault<T> implements Query<T> {
     _fillDeleteData(entityMetaData);
   }
 
-  _fillDeleteData(Map<String, ColumnInfo> entityMetaData) {
+  void _fillDeleteData(Map<String, ColumnInfo> entityMetaData) {
     Map<String, ColumnInfo> pkColumns = Map<String, ColumnInfo>.from(entityMetaData)
       ..removeWhere((k, v) => v.relation != ColumnRelation.primaryKey);
 
@@ -511,7 +511,7 @@ class QueryDefault<T> implements Query<T> {
     _operQueries[DbOperation.delete] = operQuery;
   }
 
-  _fillUpdateData(Map<String, ColumnInfo> entityMetaData) {
+  void _fillUpdateData(Map<String, ColumnInfo> entityMetaData) {
     Map<String, ColumnInfo> updateColumns = Map<String, ColumnInfo>.from(entityMetaData)
       ..removeWhere(
           (k, v) => v.relation == ColumnRelation.calculated || v.relation == ColumnRelation.primaryKey);
@@ -532,7 +532,7 @@ class QueryDefault<T> implements Query<T> {
     _operQueries[DbOperation.update] = operQuery;
   }
 
-  _fillInsertData(Map<String, ColumnInfo> entityMetaData) {
+  void _fillInsertData(Map<String, ColumnInfo> entityMetaData) {
     Map<String, ColumnInfo> savedColumns = Map<String, ColumnInfo>.from(entityMetaData)
       ..removeWhere((k, v) => v.relation == ColumnRelation.calculated);
 

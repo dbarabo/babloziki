@@ -69,6 +69,7 @@ class DbDefault implements Db {
 
     if (isExistsDb && (_dbSettings.isDeleteExists == true)) {
       await dbFactory.deleteDatabase(path);
+      print("DELETE DB PATH=$path");
       isExistsDb = false;
     }
 

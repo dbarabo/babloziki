@@ -14,6 +14,8 @@ class AccountModelDb implements AccountModel {
 
   static List<Account> _accounts;
 
+  static AccountModel instance() => _instance;
+
   static Future<AccountModel> init() async {
     _accounts = await BablozDb().queryAccount.mainEntityList;
 
@@ -21,7 +23,7 @@ class AccountModelDb implements AccountModel {
   }
 
   @override
-  int get countAccounts => _accounts.length ?? 0;
+  int get countAccounts => _accounts?.length ?? 0;
 
   @override
   List<Account> get accounts => _accounts;

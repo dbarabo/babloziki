@@ -50,7 +50,7 @@ class BablozDb {
 from category c where COALESCE(c.SYNC, 0) != 2
 order by case when c.parent is null then 1000000*c.id else 1000000*c.parent + c.id end""";
 
-  static const List<dynamic> _CATEGORY_PARAMS = [0, 9223372036854775807];
+  static const List<dynamic> _CATEGORY_PARAMS = <dynamic>[0, 9223372036854775807];
 
   static const _PERSON_SELECT = """
     select p.*,
