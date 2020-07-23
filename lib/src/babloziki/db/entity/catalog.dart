@@ -82,11 +82,13 @@ class AccountType {
 
   final String label;
 
-  const AccountType._internal(this.dbValue, this.label);
+  final String image;
 
-  static const CURRENT = AccountType._internal(0, "Текущие (оборотные)");
-  static const CREDIT = AccountType._internal(1, "Расходные (кредиты)");
-  static const DEPOSIT = AccountType._internal(2, "Доходные (вклады)");
+  const AccountType._internal(this.dbValue, this.label, this.image);
+
+  static const CURRENT = AccountType._internal(0, "Текущие (оборотные)", "account");
+  static const CREDIT = AccountType._internal(1, "Расходные (кредиты)", "loan");
+  static const DEPOSIT = AccountType._internal(2, "Доходные (вклады)", "deposit");
 
   static const List<AccountType> _values = [CURRENT, CREDIT, DEPOSIT];
 

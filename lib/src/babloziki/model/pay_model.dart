@@ -7,6 +7,9 @@ abstract class PayModel {
   List<Pay> get pays;
 
   int get countPays;
+
+  Pay get selected;
+  set selected(Pay pay);
 }
 
 class PayModelDb implements PayModel {
@@ -29,6 +32,8 @@ class PayModelDb implements PayModel {
   Pay _filter;
 
   List<Pay> _filterPays;
+
+  Pay _selected;
 
   @override
   void setFilter(Pay filter) {
@@ -70,6 +75,13 @@ class PayModelDb implements PayModel {
     if (filter == null) return _allPays;
 
     return _addDateHeaderPays(_allPays.where((pay) => pay.isEqualNotNull(filter)).toList());
+  }
+
+  @override
+  Pay get selected => _selected;
+
+  set selected(Pay pay) {
+    _selected = pay;
   }
 }
 

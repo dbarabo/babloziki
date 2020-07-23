@@ -27,6 +27,9 @@ Widget _accountItem(BuildContext context, int index) {
 
   return Card(
       child: ListTile(
+    leading: (account?.accountType?.image == null
+        ? null
+        : Image.asset("assets/images/${account?.accountType?.image}.png")),
     title: Text(account.name),
     trailing: Text(account.restFormat),
     subtitle: Text(account.accountType.toString()),
