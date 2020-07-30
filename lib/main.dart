@@ -1,4 +1,5 @@
 import 'package:babloziki/src/babloziki/model/account_model.dart';
+import 'package:babloziki/src/babloziki/model/category_model.dart';
 import 'package:babloziki/src/babloziki/model/pay_model.dart';
 import 'package:babloziki/src/babloziki/screen/account_view.dart';
 import 'package:flutter/material.dart';
@@ -22,9 +23,14 @@ void main() async {
 
 Future<List<SingleChildWidget>> _initProviders() async {
   final accountProvider = await AccountModelDb.init();
+  final categoryProvider = await CategoryModelDb.init();
   final payProvider = await PayModelDb.init();
 
-  return [Provider<AccountModel>.value(value: accountProvider), Provider<PayModel>.value(value: payProvider)];
+  return [
+    Provider<AccountModel>.value(value: accountProvider),
+    Provider<PayModel>.value(value: payProvider),
+    Provider<CategoryModel>.value(value: categoryProvider),
+  ];
 
 //  return [
 //    FutureProvider<AccountModel>(
