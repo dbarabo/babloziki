@@ -1,4 +1,5 @@
 import 'package:babloziki/src/babloziki/db/entity/catalog.dart';
+import 'package:babloziki/src/babloziki/model/account_model.dart';
 import 'package:babloziki/src/babloziki/model/category_model.dart';
 import 'package:babloziki/src/babloziki/model/pay_model.dart';
 import 'package:babloziki/src/babloziki/screen/pay_detail_edit.dart';
@@ -7,12 +8,58 @@ import 'package:provider/provider.dart';
 
 import 'custom_theme.dart';
 
+void datePaySelectedClick(BuildContext context, Pay selectedPay) async {
+  DateTime selectedDate = selectedPay?.created ?? DateTime.now();
+
+  DateTime picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: new DateTime(DateTime.now().year - 1),
+      lastDate: new DateTime(DateTime.now().year + 1));
+
+  if (picked != null && selectedPay?.created != picked) {
+    selectedPay?.created = picked;
+    Navigator.pop(context);
+    Navigator.push(context, MaterialPageRoute<PayDetailEdit>(builder: (_) => PayDetailEdit()));
+  }
+}
+
+void accountSelectedClick(BuildContext context) {
+  showDialog<void>(context: context, builder: (ctx) => _accountDialog(ctx));
+}
+
 void categoryChildClick(BuildContext context) {
   showDialog<void>(context: context, builder: (ctx) => _categoryChildDialog(ctx));
 }
 
 void categoryParentClick(BuildContext context) {
   showDialog<void>(context: context, builder: (ctx) => _categoryParentDialog(ctx));
+}
+
+Widget _accountDialog(BuildContext context) {
+  return SimpleDialog(title: const Text('Счета'), children: _accountItems(context));
+}
+
+List<Widget> _accountItems(BuildContext context) {
+  final accountModel = context.watch<AccountModel>();
+
+  return accountModel.accounts?.map<Widget>((account) => _createSimpleAccount(context, account))?.toList();
+}
+
+Widget _createSimpleAccount(BuildContext context, Account account) {
+  final accountImage = (account?.accountType?.image == null)
+      ? Text("")
+      : Image.asset("assets/images/${account?.accountType?.image}.png",
+          scale: MediaQuery.of(context).devicePixelRatio * 2);
+
+  return SimpleDialogOption(
+      child: Row(children: <Widget>[
+        accountImage,
+        Expanded(
+            child: Text("${account.name} [${account.restFormat}]",
+                style: Theme.of(context).textTheme.bodyText1.apply(color: CustomTheme.color)))
+      ]),
+      onPressed: () => {null});
 }
 
 Widget _categoryChildDialog(BuildContext context) {

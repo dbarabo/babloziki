@@ -64,8 +64,9 @@ class PayDetailEdit extends StatelessWidget {
         color: CustomTheme.backGroundColor,
         child: Row(children: <Widget>[
           Container(height: heightCategory, child: categoryParent),
-          Container(height: heightCategory, child: categoryChild),
-          Expanded(child: categoryChild)
+          Expanded(
+              child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: heightCategory), child: categoryChild))
         ]));
 
     final dateText = Container(
@@ -82,6 +83,8 @@ class PayDetailEdit extends StatelessWidget {
                   style: Theme.of(context).textTheme.headline6.apply(color: CustomTheme.color)))
         ]));
 
+    final dateButton = RaisedButton(child: dateText, onPressed: () => datePaySelectedClick(context, pay));
+
     final accountImage = (pay?.account?.accountType?.image == null)
         ? null
         : Image.asset("assets/images/${pay?.account?.accountType?.image}.png",
@@ -89,14 +92,15 @@ class PayDetailEdit extends StatelessWidget {
 
     final accountImageOrText = accountImage == null ? Text("") : accountImage;
 
-    final accountRow = Container(
+    final accountRow = RaisedButton(
         //color: _backGroundColor,
         child: Row(children: <Widget>[
-      Container(height: accountImage.height, child: accountImageOrText),
-      Expanded(
-          child: Text(pay?.account?.name,
-              style: Theme.of(context).textTheme.headline6.apply(color: CustomTheme.color)))
-    ]));
+          Container(height: accountImage.height, child: accountImageOrText),
+          Expanded(
+              child: Text(pay?.account?.name,
+                  style: Theme.of(context).textTheme.headline6.apply(color: CustomTheme.color)))
+        ]),
+        onPressed: () => accountSelectedClick(context));
 
     final description = Text(pay?.description ?? "",
         style: Theme.of(context).textTheme.bodyText1.apply(color: CustomTheme.color));
@@ -105,7 +109,7 @@ class PayDetailEdit extends StatelessWidget {
       amountText,
       categoryRow,
       Divider(thickness: 1),
-      dateText,
+      dateButton,
       Divider(thickness: 1),
       accountRow,
       Divider(thickness: 1),
