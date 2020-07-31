@@ -1,5 +1,6 @@
 import 'package:babloziki/src/babloziki/db/babloz_db.dart';
 import 'package:babloziki/src/babloziki/db/entity/catalog.dart';
+import 'package:babloziki/src/idiomatic/impl/reflect.dart';
 
 abstract class PayModel {
   void setFilter(Pay filter);
@@ -10,6 +11,11 @@ abstract class PayModel {
 
   Pay get selected;
   set selected(Pay pay);
+
+  Pay get editable;
+  set editable(Pay pay);
+
+  Future<Pay> save();
 }
 
 class PayModelDb implements PayModel {
@@ -34,6 +40,8 @@ class PayModelDb implements PayModel {
   List<Pay> _filterPays;
 
   Pay _selected;
+
+  Pay _editable;
 
   @override
   void setFilter(Pay filter) {
@@ -82,6 +90,43 @@ class PayModelDb implements PayModel {
 
   set selected(Pay pay) {
     _selected = pay;
+  }
+
+  @override
+  Pay get editable => _editable;
+  set editable(Pay pay) {
+    _editable = copy<Pay>(pay);
+  }
+
+  @override
+  Future<Pay> save() async {
+    final isEdit = _editable?.id != null;
+
+    Pay savePay = await BablozDb().queryPay.save(_editable);
+
+    if (isEdit) {
+      final findPay =
+          (savePay.id == _selected?.id) ? _selected : _allPays.firstWhere((it) => it.id == savePay.id);
+      savePay.copyTo(findPay);
+    } else {
+      int indexFindPayDate =
+          _allPays.indexWhere((it) => it.id == null && it.created?.isSameDate(savePay.created) == true);
+
+      if (indexFindPayDate >= 0) {
+        _allPays.insert(indexFindPayDate + 1, savePay);
+      } else {
+        int indexLessPayDate =
+            _allPays.indexWhere((it) => it.id == null && it.created?.isBefore(savePay.created) == true);
+
+        if (indexLessPayDate < 0) indexLessPayDate = 0;
+
+        _allPays.insert(indexFindPayDate, savePay);
+        _allPays.insert(indexFindPayDate, Pay(null, savePay.created));
+      }
+      _filterPays = _setFilter(_filter);
+    }
+
+    return savePay;
   }
 }
 

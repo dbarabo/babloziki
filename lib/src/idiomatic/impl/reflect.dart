@@ -5,7 +5,7 @@ import '../idiomatic.dart';
 import 'func.dart';
 
 Entity getEntityAnnotation(Type type) =>
-    entity.reflectType(type)?.metadata?.firstWhere((it) => it is Entity, orElse: () => null);
+    entity.reflectType(type)?.metadata?.firstWhere((it) => it is Entity, orElse: () => null) as Entity;
 
 enum ColumnRelation {
   normal,
@@ -137,7 +137,8 @@ Map<String, ColumnInfo> initCalcColumnsByType(ClassMirror typeInstance, Map<Stri
   for (final calcField in calcList) {
     final columnName = _getColumnNameByVariable(calcField.value as VariableMirror) ?? calcField.key;
 
-    final sqlValue = (row == null) ? null : (row[columnName.toUpperCase()] ?? row[columnName.toLowerCase()]);
+    dynamic sqlValue =
+        (row == null) ? null : (row[columnName.toUpperCase()] ?? row[columnName.toLowerCase()]);
 
     opers[columnName] = _createCalcColumnInfo(calcField, sqlValue);
   }
@@ -244,7 +245,7 @@ MapEntry<String, VariableMirror> _getFieldByAnnotation(ClassMirror typeInstance,
               null,
       orElse: () => null);
 
-  return annot;
+  return annot as MapEntry<String, VariableMirror>;
 }
 
 MapEntry<String, VariableMirror> _getFieldByName(ClassMirror typeInstance, String columnName) {
@@ -257,24 +258,45 @@ MapEntry<String, VariableMirror> _getFieldByName(ClassMirror typeInstance, Strin
 
   if (field == null) return null;
 
-  return MapEntry<String, VariableMirror>(field.key, field.value);
+  return MapEntry<String, VariableMirror>(field.key, field.value as VariableMirror);
 }
 
 String _getColumnNameByVariable(VariableMirror variable) {
   final Column firstColumn = variable?.metadata
-      ?.firstWhere((col) => col is Column && col?.name?.isNotEmpty == true, orElse: () => null);
+      ?.firstWhere((col) => col is Column && col?.name?.isNotEmpty == true, orElse: () => null) as Column;
 
   return firstColumn?.name;
 }
 
 String _getIdAnnotation(List<Object> metadataColumn) {
-  final Id id = metadataColumn?.firstWhere((it) => it is Id, orElse: () => null);
+  final Id id = metadataColumn?.firstWhere((it) => it is Id, orElse: () => null) as Id;
 
   return id == null ? null : (id.querySequence == null ? "" : id.querySequence.trim());
 }
 
 String _getCalcAnnotation(List<Object> metadataColumn) {
-  final Calc calc = metadataColumn?.firstWhere((it) => it is Calc, orElse: () => null);
+  final Calc calc = metadataColumn?.firstWhere((it) => it is Calc, orElse: () => null) as Calc;
 
   return calc == null ? null : (calc.selectById == null ? "" : calc.selectById.trim());
+}
+
+extension Reflect<T> on T {
+  T copyTo(T entityItem) {
+    if (entityItem == null) return null;
+
+    ClassMirror clazz = entity.reflectType(T) as ClassMirror;
+
+    final InstanceMirror instanceSrc = entity.reflect(this);
+
+    final InstanceMirror instanceCopyTo = entity.reflect(entityItem);
+
+    final Iterable<MapEntry<String, DeclarationMirror>> fields =
+        clazz.declarations?.entries?.where((it) => it.value is VariableMirror);
+
+    for (var field in fields) {
+      instanceCopyTo.invokeSetter(field.key, instanceSrc.invokeGetter(field.key));
+    }
+
+    return entityItem;
+  }
 }
