@@ -12,6 +12,8 @@ class PayDetailEdit extends StatelessWidget {
   MoneyMaskedTextController amountController =
       MoneyMaskedTextController(decimalSeparator: ',', thousandSeparator: ' ');
 
+  final _descriptionController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     final payModel = context.watch<PayModel>();
@@ -36,10 +38,13 @@ class PayDetailEdit extends StatelessWidget {
   Widget _detailPay(Pay pay, BuildContext context) {
     amountController.updateValue(pay?.amount ?? 0.0);
 
+    _descriptionController.text = pay?.description ?? "";
+
     final amountText = Container(
         color: CustomTheme.backGroundColor,
         child: TextField(
             controller: amountController,
+            keyboardType: TextInputType.number,
             textAlign: TextAlign.right,
             style: Theme.of(context).textTheme.headline6.apply(color: Colors.teal, fontSizeFactor: 2.0)));
 
@@ -102,7 +107,8 @@ class PayDetailEdit extends StatelessWidget {
         ]),
         onPressed: () => accountSelectedClick(context));
 
-    final description = Text(pay?.description ?? "",
+    final description = TextField(
+        controller: _descriptionController,
         style: Theme.of(context).textTheme.bodyText1.apply(color: CustomTheme.color));
 
     return ListView(children: <Widget>[
